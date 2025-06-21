@@ -1,0 +1,41 @@
+name: Python application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python 3.8+
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium pytest
+
+      - name: Run unit tests for calculate_total_price()
+        run: |
+          pytest tests/test_calculate_total_price.py --maxfail=1 --disable-warnings -q
+
+      - name: Run integration tests (cart & payment)
+        run: |
+          pytest tests/test_integration_cart_payment.py --maxfail=1 --disable-warnings -q
+
+      - name: Run UI tests with Selenium (headless)
+        run: |
+          # Установка ChromeDriver и запуск браузера в headless режиме.
+          pip install selenium pytest-headless 
+          pytest tests/test_ui_search_order.py --headless --maxfail=1 --disable-warnings -q
+      
+      - name: Fail on errors if any test fails (automatically handled by pytest)
